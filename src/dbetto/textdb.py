@@ -220,7 +220,7 @@ class TextDB:
             files = [files]
 
         # read files in and combine as necessary
-        result = AttrsDict()
+        result = AttrsDict(validity_file=str(validity_file), files=files)
 
         for file in files:
             # absolute path
