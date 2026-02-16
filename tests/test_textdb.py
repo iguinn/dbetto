@@ -219,6 +219,13 @@ def test_time_validity():
     assert jdb.dir1.on("20230101T000000Z").is_valid("20230101T000000Z")
     assert not jdb.dir1.on("20230101T000000Z").is_valid("20230102T120000Z")
     assert jdb.dir1.on("20230101T000000Z").is_valid("20230103T120000Z")
+    assert jdb.dir1.on(tstamp, r"^file3.*", "all").is_valid(tstamp, r"^file3.*", "all")
+    a = jdb.dir1.on("20230102T120000Z")
+    b = jdb.dir1.on("20230102T000000Z")
+    assert (a | b).is_valid("20230102T000000Z")
+    a |= b
+    assert (a | b).is_valid("20230102T000000Z")
+    assert not jdb.dir1.file3.is_valid("20230101T000000Z")
 
 
 def test_mapping():

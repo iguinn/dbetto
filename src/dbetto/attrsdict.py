@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from collections.abc import Hashable
 from typing import Any
 
@@ -55,9 +56,9 @@ class AttrsDict(dict):
         value
             a :class:`dict` object to initialize the instance with.
         validity_file
-            path to validity file used to initialize this instance
-        path
-            path to file used to initialize this instance
+            path(s) to validity file used to initialize this instance with :meth:TextDB.on
+        files
+            list of files used to initialize this instance with :meth:TextDB.on
         """
         if isinstance(validity_file, str):
             super().__setattr__("__validity_files__", [validity_file])
@@ -278,19 +279,25 @@ class AttrsDict(dict):
         """
         return self.map(label, unique=False)
 
-    def is_valid(self, timestamp: str, system: str = "all") -> bool:
+    def is_valid(self, timestamp: str, pattern: str | None = None, system: str = "all") -> bool:
         """
         If validity file was provided, return ``True`` if the timestamp
         and system are valid for the path used to build this instance. If
-        no validity file was provided, return ``True``.
+        no validity file was provided, return ``False``.
         """
         if len(self.__validity_files__) == 0:
-            return True
+            return False
         valid_files = [
             f
             for vf in self.__validity_files__
             for f in Catalog.get_files(vf, timestamp, system)
         ]
+
+        # select only files matching pattern, if specified
+        if pattern is not None:
+            c = re.compile(pattern)
+            valid_files = [ f for f in valid_files if c.match(f) ]
+
         return valid_files == self.__files__
 
     # d |= other_d should still produce a valid AttrsDict
@@ -331,5 +338,5 @@ class AttrsDict(dict):
     def __setstate__(self, state: dict) -> None:
         """Restore the instance-specific state during unpickling."""
         super().__setattr__("__cached_remaps__", state.get("__cached_remaps__", {}))
-        super().__setattr__("__validity_files__", state["__validity_files__"])
-        super().__setattr__("__files__", state["__files__"])
+        super().__setattr__("__validity_files__", state.get("__validity_files__", []))
+        super().__setattr__("__files__", state.get("__files__", []))
