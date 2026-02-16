@@ -228,9 +228,6 @@ class TextDB:
                 raise RuntimeError(msg)
             Props.add_to(result, self[file])
 
-        # substitute $_ with path to the file
-        Props.subst_vars(result, var_values={"_": self.__path__})
-
         return result
 
     def map(self, label: str, unique: bool = True) -> AttrsDict:
