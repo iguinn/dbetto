@@ -223,16 +223,10 @@ class TextDB:
         result = AttrsDict()
 
         for file in files:
-            # absolute path
-            file_abs = list(self.__path__.rglob(file))
-
-            if not file_abs:
+            if not (self.__path__ / file).exists():
                 msg = f"{file} not found in the database root path {self.__path__!s}"
                 raise RuntimeError(msg)
-
-            # combine dictionaries
-            for f in file_abs:
-                Props.add_to(result, self[f])
+            Props.add_to(result, self[file])
 
         # substitute $_ with path to the file
         Props.subst_vars(result, var_values={"_": self.__path__})
