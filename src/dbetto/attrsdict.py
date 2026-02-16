@@ -279,7 +279,9 @@ class AttrsDict(dict):
         """
         return self.map(label, unique=False)
 
-    def is_valid(self, timestamp: str, pattern: str | None = None, system: str = "all") -> bool:
+    def is_valid(
+        self, timestamp: str, pattern: str | None = None, system: str = "all"
+    ) -> bool:
         """
         If validity file was provided, return ``True`` if the timestamp
         and system are valid for the path used to build this instance. If
@@ -296,7 +298,7 @@ class AttrsDict(dict):
         # select only files matching pattern, if specified
         if pattern is not None:
             c = re.compile(pattern)
-            valid_files = [ f for f in valid_files if c.match(f) ]
+            valid_files = [f for f in valid_files if c.match(f)]
 
         return valid_files == self.__files__
 
