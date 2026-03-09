@@ -48,6 +48,19 @@ def float_representer(dumper, value):
 yaml.add_representer(float, float_representer)
 
 
+# Force numeric keys to be read as strings
+# See https://stackoverflow.com/a/50048075
+def my_construct_mapping(self, node, deep=False):
+    data = self.construct_mapping_org(node, deep)
+    return {
+        (str(key) if isinstance(key, (int, float)) else key): data[key] for key in data
+    }
+
+
+Loader.construct_mapping_org = Loader.construct_mapping
+Loader.construct_mapping = my_construct_mapping
+
+
 def load_dict(fname: str, ftype: str | None = None) -> dict:
     """Load a text file as a Python dict."""
     fname = Path(fname)
